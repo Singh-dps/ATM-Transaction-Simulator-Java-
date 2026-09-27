@@ -1,6 +1,18 @@
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Transaction {
+
+    public static final String TYPE_DEPOSIT = "Deposit";
+    public static final String TYPE_WITHDRAWAL = "Withdrawal";
+
+    public static final String[] TYPES = {
+            TYPE_DEPOSIT,
+            TYPE_WITHDRAWAL
+    };
+
+    private static final DateTimeFormatter DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private String type;
     private double amount;
@@ -33,8 +45,7 @@ public class Transaction {
 
     @Override
     public String toString() {
-
-        return "Date: " + dateTime
+        return "Date: " + dateTime.format(DISPLAY_FORMAT)
                 + " | Type: " + type
                 + " | Amount: ₹" + amount;
     }

@@ -5,20 +5,26 @@ import java.util.TreeMap;
 
 public class ATM {
 
+    public static final String[] MENU = {
+            "Balance Enquiry",
+            "Deposit",
+            "Withdrawal",
+            "Mini Statement",
+            "Transaction History",
+            "Account Search",
+            "Reports",
+            "Logout"
+    };
+
     private ArrayList<Customer> customers;
     private HashMap<String, Account> accounts;
     private TreeMap<String, Account> sortedAccounts;
 
-    // Constructor
     public ATM() {
         customers = new ArrayList<>();
         accounts = new HashMap<>();
         sortedAccounts = new TreeMap<>();
     }
-
-    // =========================
-    // CREATE
-    // =========================
 
     public void addCustomer(Customer customer) {
 
@@ -26,24 +32,53 @@ public class ATM {
 
         Account account = customer.getAccount();
 
-        accounts.put(
-                account.getAccountNumber(),
-                account
-        );
-
-        sortedAccounts.put(
-                account.getAccountNumber(),
-                account
-        );
+        accounts.put(account.getAccountNumber(), account);
+        sortedAccounts.put(account.getAccountNumber(), account);
     }
 
-    // =========================
-    // SEARCH ACCOUNT
-    // =========================
-
     public Account findAccount(String accountNumber) {
-
         return accounts.get(accountNumber);
+    }
+
+    public Customer findCustomerByAccount(String accountNumber) {
+
+        for (Customer customer : customers) {
+
+            if (customer.getAccount().getAccountNumber().equals(accountNumber)) {
+                return customer;
+            }
+        }
+
+        return null;
+    }
+
+    public String searchAccountText(String accountNumber) {
+
+        Account account = accounts.get(accountNumber);
+
+        if (account == null) {
+            return "Account not found.";
+        }
+
+        Customer customer = findCustomerByAccount(accountNumber);
+        StringBuilder text = new StringBuilder();
+
+        text.append("Account Number: ")
+                .append(account.getAccountNumber())
+                .append('\n');
+
+        if (customer != null) {
+            text.append("Customer: ").append(customer.getName()).append('\n');
+            text.append("Phone: ").append(customer.getPhone()).append('\n');
+        }
+
+        text.append("Current Balance: ₹")
+                .append(account.getBalance())
+                .append('\n');
+        text.append("Transactions: ")
+                .append(account.getTransactions().size());
+
+        return text.toString();
     }
 
     public void searchAccount(String accountNumber) {
@@ -51,166 +86,111 @@ public class ATM {
         Account account = accounts.get(accountNumber);
 
         if (account == null) {
-
             System.out.println("Account not found.");
-
             return;
         }
 
-        System.out.println("\n===== ACCOUNT FOUND =====");
-
-        System.out.println(
-                "Account Number: "
-                        + account.getAccountNumber()
-        );
-
-        System.out.println(
-                "Current Balance: ₹"
-                        + account.getBalance()
-        );
+        System.out.println();
+        System.out.println(searchAccountText(accountNumber));
     }
 
-    // =========================
-    // DISPLAY CUSTOMERS
-    // =========================
+    public String accountReportText() {
+
+        double totalBalance = 0;
+
+        for (Account account : accounts.values()) {
+            totalBalance += account.getBalance();
+        }
+
+        return "===== ACCOUNT REPORT =====\n"
+                + "Total Customers: " + customers.size() + "\n"
+                + "Total Accounts: " + accounts.size() + "\n"
+                + "Total Bank Balance: ₹" + totalBalance + "\n";
+    }
+
+    public String transactionReportText() {
+
+        int totalTransactions = 0;
+        StringBuilder lines = new StringBuilder();
+
+        for (Account account : sortedAccounts.values()) {
+
+            int count = account.getTransactions().size();
+            totalTransactions += count;
+
+            Customer customer = findCustomerByAccount(account.getAccountNumber());
+
+            lines.append(account.getAccountNumber());
+
+            if (customer != null) {
+                lines.append(" | ").append(customer.getName());
+            }
+
+            lines.append(" | Transactions: ").append(count).append('\n');
+        }
+
+        return "===== TRANSACTION REPORT =====\n"
+                + "Total Transactions: " + totalTransactions + "\n\n"
+                + lines;
+    }
+
+    public String reportsText() {
+        return accountReportText() + "\n" + transactionReportText();
+    }
+
+    public void generateAccountReport() {
+        System.out.println();
+        System.out.print(accountReportText());
+    }
+
+    public void generateTransactionReport() {
+        System.out.println();
+        System.out.print(transactionReportText());
+    }
 
     public void displayCustomers() {
 
         System.out.println("\n===== CUSTOMER RECORDS =====");
 
         if (customers.isEmpty()) {
-
             System.out.println("No customers available.");
-
             return;
         }
 
         for (Customer customer : customers) {
-
             System.out.println(customer);
         }
     }
-
-    // =========================
-    // DISPLAY ACCOUNTS
-    // =========================
-
-    public void displayAccounts() {
-
-        System.out.println("\n===== ACCOUNT RECORDS =====");
-
-        if (accounts.isEmpty()) {
-
-            System.out.println("No accounts available.");
-
-            return;
-        }
-
-        for (Account account : accounts.values()) {
-
-            System.out.println(
-                    "Account Number: "
-                            + account.getAccountNumber()
-                            + " | Balance: ₹"
-                            + account.getBalance()
-            );
-        }
-    }
-
-    // =========================
-    // SORT ACCOUNTS
-    // =========================
 
     public void displaySortedAccounts() {
 
         System.out.println("\n===== SORTED ACCOUNTS =====");
 
-        if (sortedAccounts.isEmpty()) {
-
-            System.out.println("No accounts available.");
-
-            return;
-        }
-
         for (Account account : sortedAccounts.values()) {
-
             System.out.println(
-                    "Account Number: "
-                            + account.getAccountNumber()
-                            + " | Balance: ₹"
-                            + account.getBalance()
+                    "Account Number: " + account.getAccountNumber()
+                            + " | Balance: ₹" + account.getBalance()
             );
         }
     }
 
-    // =========================
-    // DELETE ACCOUNT
-    // =========================
+    public Account login(String accountNumber, int pin) {
 
-    public void deleteAccount(String accountNumber) {
-
-        Account account = accounts.remove(accountNumber);
+        Account account = accounts.get(accountNumber);
 
         if (account == null) {
-
             System.out.println("Account not found.");
-
-            return;
-        }
-
-        sortedAccounts.remove(accountNumber);
-
-        customers.removeIf(
-                customer ->
-                        customer.getAccount()
-                                .getAccountNumber()
-                                .equals(accountNumber)
-        );
-
-        System.out.println(
-                "Account deleted successfully."
-        );
-    }
-
-    // =========================
-    // LOGIN
-    // =========================
-
-    public Account login(
-            String accountNumber,
-            int pin) {
-
-        Account account =
-                accounts.get(accountNumber);
-
-        if (account == null) {
-
-            System.out.println(
-                    "Account not found."
-            );
-
             return null;
         }
 
         if (!account.validatePin(pin)) {
-
-            System.out.println(
-                    "Invalid PIN."
-            );
-
+            System.out.println("Invalid PIN.");
             return null;
         }
 
-        System.out.println(
-                "\nLogin successful!"
-        );
-
+        System.out.println("\nLogin successful!");
         return account;
     }
-
-    // =========================
-    // ATM MENU
-    // =========================
 
     public void showMenu(Account account) {
 
@@ -218,269 +198,86 @@ public class ATM {
 
         while (true) {
 
-            System.out.println(
-                    "\n=========================="
-            );
+            System.out.println("\n==========================");
+            System.out.println("       ATM MENU");
+            System.out.println("==========================");
 
-            System.out.println(
-                    "       ATM MENU"
-            );
+            for (int i = 0; i < MENU.length; i++) {
+                System.out.println((i + 1) + ". " + MENU[i]);
+            }
 
-            System.out.println(
-                    "=========================="
-            );
-
-            System.out.println(
-                    "1. Balance Enquiry"
-            );
-
-            System.out.println(
-                    "2. Deposit"
-            );
-
-            System.out.println(
-                    "3. Withdrawal"
-            );
-
-            System.out.println(
-                    "4. Mini Statement"
-            );
-
-            System.out.println(
-                    "5. Logout"
-            );
-
-            System.out.print(
-                    "Enter your choice: "
-            );
+            System.out.print("Enter your choice: ");
 
             int choice;
 
             try {
-
                 choice = scanner.nextInt();
-
-            } catch (Exception e) {
-
-                System.out.println(
-                        "Invalid input. Please enter a number."
-                );
-
+            } catch (Exception ex) {
+                System.out.println("Invalid input. Please enter a number.");
                 scanner.nextLine();
-
                 continue;
             }
 
             switch (choice) {
 
-                // -------------------------
-                // BALANCE
-                // -------------------------
-
                 case 1:
-
-                    System.out.println(
-                            "\n===== BALANCE ENQUIRY ====="
-                    );
-
-                    System.out.println(
-                            "Account Number: "
-                                    + account.getAccountNumber()
-                    );
-
-                    System.out.println(
-                            "Available Balance: ₹"
-                                    + account.getBalance()
-                    );
-
+                    System.out.println("\n===== BALANCE ENQUIRY =====");
+                    System.out.println("Account Number: " + account.getAccountNumber());
+                    System.out.println("Available Balance: ₹" + account.getBalance());
                     break;
-
-                // -------------------------
-                // DEPOSIT
-                // -------------------------
 
                 case 2:
-
-                    System.out.print(
-                            "\nEnter deposit amount: ₹"
-                    );
-
+                    System.out.print("\nEnter deposit amount: ₹");
                     try {
-
-                        double depositAmount =
-                                scanner.nextDouble();
-
-                        account.deposit(
-                                depositAmount
-                        );
-
-                        System.out.println(
-                                "Amount deposited successfully."
-                        );
-
-                        System.out.println(
-                                "New Balance: ₹"
-                                        + account.getBalance()
-                        );
-
-                    } catch (IllegalArgumentException e) {
-
-                        System.out.println(
-                                e.getMessage()
-                        );
-
-                    } catch (Exception e) {
-
-                        System.out.println(
-                                "Invalid amount."
-                        );
-
+                        account.deposit(scanner.nextDouble());
+                        System.out.println("Amount deposited successfully.");
+                        System.out.println("New Balance: ₹" + account.getBalance());
+                    } catch (IllegalArgumentException ex) {
+                        System.out.println(ex.getMessage());
+                    } catch (Exception ex) {
+                        System.out.println("Invalid amount.");
                         scanner.nextLine();
                     }
-
                     break;
-
-                // -------------------------
-                // WITHDRAW
-                // -------------------------
 
                 case 3:
-
-                    System.out.print(
-                            "\nEnter withdrawal amount: ₹"
-                    );
-
+                    System.out.print("\nEnter withdrawal amount: ₹");
                     try {
-
-                        double withdrawalAmount =
-                                scanner.nextDouble();
-
-                        account.withdraw(
-                                withdrawalAmount
-                        );
-
-                        System.out.println(
-                                "Please collect your cash."
-                        );
-
-                        System.out.println(
-                                "Remaining Balance: ₹"
-                                        + account.getBalance()
-                        );
-
-                    } catch (IllegalArgumentException e) {
-
-                        System.out.println(
-                                e.getMessage()
-                        );
-
-                    } catch (Exception e) {
-
-                        System.out.println(
-                                "Invalid amount."
-                        );
-
+                        account.withdraw(scanner.nextDouble());
+                        System.out.println("Please collect your cash.");
+                        System.out.println("Remaining Balance: ₹" + account.getBalance());
+                    } catch (IllegalArgumentException ex) {
+                        System.out.println(ex.getMessage());
+                    } catch (Exception ex) {
+                        System.out.println("Invalid amount.");
                         scanner.nextLine();
                     }
-
                     break;
-
-                // -------------------------
-                // MINI STATEMENT
-                // -------------------------
 
                 case 4:
-
+                case 5:
                     account.displayTransactions();
-
                     break;
 
-                // -------------------------
-                // LOGOUT
-                // -------------------------
+                case 6:
+                    System.out.print("Enter account number: ");
+                    searchAccount(scanner.next());
+                    break;
 
-                case 5:
+                case 7:
+                    generateAccountReport();
+                    generateTransactionReport();
+                    break;
 
-                    System.out.println(
-                            "\nLogged out successfully."
-                    );
-
+                case 8:
+                    System.out.println("\nLogged out successfully.");
                     return;
 
-                // -------------------------
-                // INVALID CHOICE
-                // -------------------------
-
                 default:
-
-                    System.out.println(
-                            "Invalid choice. Please try again."
-                    );
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
     }
-
-    // =========================
-    // ACCOUNT REPORT
-    // =========================
-
-    public void generateAccountReport() {
-
-        System.out.println(
-                "\n===== ACCOUNT REPORT ====="
-        );
-
-        System.out.println(
-                "Total Customers: "
-                        + customers.size()
-        );
-
-        System.out.println(
-                "Total Accounts: "
-                        + accounts.size()
-        );
-
-        double totalBalance = 0;
-
-        for (Account account : accounts.values()) {
-
-            totalBalance +=
-                    account.getBalance();
-        }
-
-        System.out.println(
-                "Total Bank Balance: ₹"
-                        + totalBalance
-        );
-    }
-
-    // =========================
-    // TRANSACTION REPORT
-    // =========================
-
-    public void generateTransactionReport() {
-
-        System.out.println(
-                "\n===== TRANSACTION REPORT ====="
-        );
-
-        int totalTransactions = 0;
-
-        for (Account account : accounts.values()) {
-
-            totalTransactions +=
-                    account.getTransactions().size();
-        }
-
-        System.out.println(
-                "Total Transactions: "
-                        + totalTransactions
-        );
-    }
-
-    // =========================
-    // GETTERS
-    // =========================
 
     public ArrayList<Customer> getCustomers() {
         return customers;

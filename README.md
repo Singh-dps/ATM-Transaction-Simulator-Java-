@@ -31,10 +31,9 @@ The **ATM Transaction Simulator** lets registered customers securely log in with
 - **Authentication** — Account number + 4-digit PIN, with validation for invalid entries
 - **Balance Enquiry** — Instant view of account number and current balance
 - **Deposit / Withdrawal** — Validated amounts, live balance updates, insufficient-balance protection
-- **Mini Statement & History** — Full transaction log with date, type, and amount
-- **Account Search** — O(1) lookup via `HashMap`
-- **Account Sorting** — Auto-sorted account order via `TreeMap`
-- **Transaction Sorting** — Sort by amount or date
+- **Mini Statement** — Latest transactions, with date, type, and amount
+- **Transaction History** — Full transaction log
+- **Account Search** — Look up an account by number
 - **Reports** — Total customers, total accounts, total bank balance, total transactions
 - **Robust Validation** — Negative/zero amounts, bad input, invalid PINs all handled gracefully
 
@@ -69,14 +68,13 @@ flowchart TD
 ## 📁 Project Structure
 
 ```text
-ATM-Transaction-Simulator/
-└── src/
-    ├── Main.java         # Entry point
-    ├── ATM.java           # Core operations, search, reports
-    ├── ATMGUI.java         # Swing dashboard
-    ├── Account.java         # Balance, PIN, transactions
-    ├── Customer.java         # Customer data
-    └── Transaction.java       # Transaction record
+ATM-Transaction-Simulator-Java-/
+├── Main.java            # Entry point
+├── ATM.java             # Core operations, search, reports
+├── ATMGUI.java          # Swing login and dashboard
+├── Account.java         # Balance, PIN, transactions
+├── Customer.java        # Customer data
+└── Transaction.java     # Transaction record
 ```
 
 ---
@@ -85,7 +83,7 @@ ATM-Transaction-Simulator/
 
 | Class | Responsibility |
 |---|---|
-| `Main.java` | Bootstraps sample accounts/customers, launches GUI |
+| `Main.java` | Creates the sample accounts and launches the GUI |
 | `ATM.java` | Login, account management, search, sort, reports |
 | `ATMGUI.java` | Login screen, dashboard, all user interactions |
 | `Account.java` | Balance, PIN validation, deposit/withdraw, transaction history |
@@ -106,8 +104,9 @@ flowchart TD
     Dash --> Dep[Deposit]
     Dash --> With[Withdrawal]
     Dash --> Hist[Transaction History]
-    Bal & Dep & With & Hist --> Sort[Sort / Report]
-    Sort --> Logout([Logout]) --> Login
+    Dash --> Search[Account Search]
+    Dash --> Report[Reports]
+    Bal & Dep & With & Hist & Search & Report --> Logout([Logout]) --> Login
 ```
 
 ---
@@ -118,9 +117,9 @@ flowchart TD
 # Check Java is installed
 java -version && javac -version
 
-# Clone & enter project
+# Clone & enter the folder that contains Main.java
 git clone <your-github-repository-url>
-cd ATM-Transaction-Simulator/src
+cd ATM-Transaction-Simulator-Java-
 
 # Compile & run
 javac *.java
@@ -131,11 +130,13 @@ java Main
 
 ## 🔑 Sample Test Accounts
 
-| Account No. | PIN | Initial Balance |
+`Main` creates these accounts, then adds the sample transactions before the window opens.
+
+| Account No. | PIN | Balance at login |
 |:---:|:---:|---:|
-| `10001` | `1234` | ₹10,000 |
-| `10002` | `5678` | ₹15,000 |
-| `10003` | `4321` | ₹8,000 |
+| `10001` | `1234` | ₹11500 |
+| `10002` | `5678` | ₹17000 |
+| `10003` | `4321` | ₹8000 |
 
 ---
 

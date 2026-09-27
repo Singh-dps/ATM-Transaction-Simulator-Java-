@@ -7,31 +7,21 @@ public class Account {
     private String accountNumber;
     private int pin;
     private double balance;
-
     private LinkedList<Transaction> transactions;
 
-    public Account(
-            String accountNumber,
-            int pin,
-            double balance) {
+    public Account(String accountNumber, int pin, double balance) {
 
-        if (accountNumber == null ||
-                accountNumber.isEmpty()) {
-
-            throw new IllegalArgumentException(
-                    "Invalid account number."
-            );
+        if (accountNumber == null || accountNumber.isEmpty()) {
+            throw new IllegalArgumentException("Invalid account number.");
         }
 
         if (pin < 1000 || pin > 9999) {
-
             throw new IllegalArgumentException(
                     "PIN must contain exactly 4 digits."
             );
         }
 
         if (balance < 0) {
-
             throw new IllegalArgumentException(
                     "Initial balance cannot be negative."
             );
@@ -40,7 +30,6 @@ public class Account {
         this.accountNumber = accountNumber;
         this.pin = pin;
         this.balance = balance;
-
         this.transactions = new LinkedList<>();
     }
 
@@ -65,10 +54,7 @@ public class Account {
         }
 
         balance += amount;
-
-        transactions.add(
-                new Transaction("Deposit", amount)
-        );
+        transactions.add(new Transaction(Transaction.TYPE_DEPOSIT, amount));
     }
 
     public void withdraw(double amount) {
@@ -80,87 +66,51 @@ public class Account {
         }
 
         if (amount > balance) {
-            throw new IllegalArgumentException(
-                    "Insufficient balance."
-            );
+            throw new IllegalArgumentException("Insufficient balance.");
         }
 
         balance -= amount;
-
-        transactions.add(
-                new Transaction("Withdrawal", amount)
-        );
+        transactions.add(new Transaction(Transaction.TYPE_WITHDRAWAL, amount));
     }
 
     public LinkedList<Transaction> getTransactions() {
         return transactions;
     }
 
-    // Display transactions normally
     public void displayTransactions() {
 
-        System.out.println(
-                "\n===== TRANSACTION HISTORY ====="
-        );
+        System.out.println("\n===== TRANSACTION HISTORY =====");
 
         if (transactions.isEmpty()) {
-
-            System.out.println(
-                    "No transactions available."
-            );
-
+            System.out.println("No transactions available.");
             return;
         }
 
-        for (Transaction transaction :
-                transactions) {
-
+        for (Transaction transaction : transactions) {
             System.out.println(transaction);
         }
     }
 
-    // Sort transactions by amount
     public void sortTransactionsByAmount() {
 
-        ArrayList<Transaction> sorted =
-                new ArrayList<>(transactions);
+        ArrayList<Transaction> sorted = new ArrayList<>(transactions);
+        sorted.sort(Comparator.comparingDouble(Transaction::getAmount));
 
-        sorted.sort(
-                Comparator.comparingDouble(
-                        Transaction::getAmount
-                )
-        );
+        System.out.println("\n===== TRANSACTIONS SORTED BY AMOUNT =====");
 
-        System.out.println(
-                "\n===== TRANSACTIONS SORTED BY AMOUNT ====="
-        );
-
-        for (Transaction transaction :
-                sorted) {
-
+        for (Transaction transaction : sorted) {
             System.out.println(transaction);
         }
     }
 
-    // Sort transactions by date
     public void sortTransactionsByDate() {
 
-        ArrayList<Transaction> sorted =
-                new ArrayList<>(transactions);
+        ArrayList<Transaction> sorted = new ArrayList<>(transactions);
+        sorted.sort(Comparator.comparing(Transaction::getDateTime));
 
-        sorted.sort(
-                Comparator.comparing(
-                        Transaction::getDateTime
-                )
-        );
+        System.out.println("\n===== TRANSACTIONS SORTED BY DATE =====");
 
-        System.out.println(
-                "\n===== TRANSACTIONS SORTED BY DATE ====="
-        );
-
-        for (Transaction transaction :
-                sorted) {
-
+        for (Transaction transaction : sorted) {
             System.out.println(transaction);
         }
     }
